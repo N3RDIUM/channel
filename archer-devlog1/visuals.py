@@ -82,3 +82,87 @@ class BreakIntoTris(Scene):
         self.play(Create(tri1, run_time = 2))
         self.play(Create(tri2, run_time = 2))
         self.wait(1)
+    
+def sphere_hit(origin, direction, sphere: Circle):
+    oc = origin - sphere.get_center()
+    a = np.dot(direction, direction)
+    b = 2 * np.dot(oc, direction)
+    c = np.dot(oc, oc) - (sphere.radius * 2)**2/4
+    disc = b**2 - 4*a*c
+    t = (-b - np.sqrt(disc))/(2*a)
+    
+    if t < 0:
+        return -1
+    
+    return t
+    
+def bounce(origin, direction, spheres):
+    _min = 100000000000
+    _t = 0
+    _s = None
+    for s in spheres:
+        result = sphere_hit(origin, direction, s)
+        if result < _min:
+            _min = result
+            _t = result
+            _s = s
+            
+    if _s:
+        # Get the exact point
+        _p = origin + _t*direction
+        # Get the normal
+        _n = (_p - _s.get_center())/np.linalg.norm(_p - _s.get_center())
+        # Check if _p is on the far side of the sphere
+        if np.dot(direction, _n) > 0:
+            return origin + direction * 10, None
+        # Get the reflection
+        reflection = direction - 2*np.dot(direction, _n)*_n
+        return _p, reflection * 10
+    else:
+        return origin + direction * 10, None
+        
+class Tracing2(Scene):
+    def construct(self):
+        camera_body = RoundedRectangle(0.24, width=4.2, height=3)
+        camera_lens = RoundedRectangle(0.24, width=0.5, height=2).shift(RIGHT*2.16)
+        camera_body.set_fill(WHITE, 1)
+        camera_lens.set_fill(WHITE, 1)
+        camera = Group(camera_body, camera_lens).scale(0.4).shift(LEFT*4)
+        
+        spheres = []
+        spheres.append(Circle(1).set_fill(XKCD.AMETHYST, 1).shift(RIGHT*3))
+        
+        light = Dot()
+        light.set_fill(XKCD.WHITE, 1).shift(LEFT).shift(UP*3)
+                
+        self.add(camera, light)
+        self.play(camera.animate.shift(LEFT*PI))
+        self.play(*[Create(s) for s in spheres])
+
+        rays = []
+        n = 1024
+        for i in range(-n, n):
+            x = i/n*PI*2
+            rays.append([
+                light.get_center(),
+                np.array([np.cos(x), np.sin(x), 0])
+            ])
+        
+        linecoords = []
+        for ray in rays:
+            res = bounce(ray[0], ray[1], spheres)
+            if res is not None:
+                linecoords.append(res)
+                
+        lines1 = []
+        lines2 = []
+        for line in linecoords:
+            if line[1] is not None: 
+                lines1.append(Line(light.get_center(), line[0]).set_stroke(XKCD.WHITE, 2, 1))
+                lines2.append(Line(line[0], line[1]).set_stroke(XKCD.WHITE, 1, 0.8))
+            else:
+                lines1.append(Line(light.get_center(), line[0]).set_stroke(XKCD.GREY, 1, 0.42))
+            
+        self.play(*[Create(l) for l in lines1])
+        self.play(*[Create(l) for l in lines2])
+        self.wait(1)

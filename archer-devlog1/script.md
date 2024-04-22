@@ -57,3 +57,45 @@ We only need to consider the rays that will hit the camera. Some nerds thought a
 This is kind of against our initial idea of mimicking the way light behaves in real life, but we're gonna run this on a potato, so let's stick to it anyway.
 
 [VISUAL] Potato go boom [on "potato"]
+
+We're gonna be dipping our toes into the vast sea of raytracing today. We will render a solid sphere on a solid skybox, and perhaps deal with multiple spheres too.
+We will do this in a way completely different to rasterization. We will shoot rays out of our camera for every pixel on the screen, and see if they hit the sphere. 
+If they do, the color of that pixel is the color of the sphere. Else, its color is that of the skybox.
+
+[VISUAL] The old python scene being all wavy
+
+Let's get on with the code, shall we?
+
+[VISUAL] do the code scenes from this line
+
+First, let's create a basic Ray class, as it is the most important part of our engine.
+Let's name this file vectors.py, as there will be more useful definitions made here.
+First, let's define some 2d and 3d vector datatypes. Then, we define the ray class.
+The ray has an origin and a direction. Let's also create a color class. It stores RGB color values.
+Finally, we need some way to easily normalize a 3d vector. Let's create a function for that.
+
+Now, let's create the hittable class for the object we want to render.
+In the models directory, let's create sphere.py, which contains the intersection code for the humble sphere.
+The sphere has a center, a radius and a color. 
+The color parameter is temporary, and will be removed in later versions in favour of materials.
+For the intersection function, we first need to calculate some parameters for the quadratic equation.
+Then, we calculate the discriminant of the quadratic equation.
+Then, if the ray hits the sphere, return the solution to the equation. Else return -1.
+I've written non-branching code, because I want to squeeze every last drop of optimization I can out of my code.
+The code, however, is heavily commented and easy to read, so even newbies can follow along.
+
+Next, we need to create a camera class which handles the camera position, rotation, and provides a function to
+easily get the rays for a particular pixel on the screen.
+The camera has a resolution, position, rotation, field of view, and dither.
+
+(off-screen far-away voice) What's dither?
+
+Wait for it, we'll get to it in a moment. For now, dithering adds a bit of randomness so that each ray for the
+same pixel does not go through the same path.
+The get_ray function takes pixel coordinates and returns the ray for that pixel.
+First, we calculate the aspect ratio and normalized screen coordinates.
+Then, we calculate the screen coordinates, calculate the direction vector,
+add the dither or randomness to the direction, calculate the rotation matrix,
+apply the rotation to the direction, normalize the direction, and return the ray. Phew!
+
+Now that we have made the 3 major parts of the engine, let's put it all together in scene.py

@@ -114,12 +114,12 @@ def bounce(origin, direction, spheres):
         _n = (_p - _s.get_center())/np.linalg.norm(_p - _s.get_center())
         # Check if _p is on the far side of the sphere
         if np.dot(direction, _n) > 0:
-            return origin + direction * 10, None
+            return origin + direction * 16, None
         # Get the reflection
         reflection = direction - 2*np.dot(direction, _n)*_n
         return _p, reflection * 10
     else:
-        return origin + direction * 10, None
+        return origin + direction * 16, None
         
 class Tracing2(Scene):
     def construct(self):
@@ -163,6 +163,36 @@ class Tracing2(Scene):
             else:
                 lines1.append(Line(light.get_center(), line[0]).set_stroke(XKCD.GREY, 1, 0.42))
             
+        self.play(*[Create(l) for l in lines1])
+        self.play(*[Create(l) for l in lines2])
+        self.wait(1)
+        self.play(*[Uncreate(l) for l in lines2])
+        self.play(*[Uncreate(l) for l in lines1])
+        
+        rays = []
+        n = 1024
+        for i in range(-n, n):
+            x = i/n*PI*2
+            rays.append([
+                camera.get_center(),
+                np.array([np.cos(x), np.sin(x), 0])
+            ])
+        
+        linecoords = []
+        for ray in rays:
+            res = bounce(ray[0], ray[1], spheres)
+            if res is not None:
+                linecoords.append(res)
+                
+        lines1 = []
+        lines2 = []
+        for line in linecoords:
+            if line[1] is not None: 
+                lines1.append(Line(camera.get_center(), line[0]).set_stroke(XKCD.WHITE, 2, 1))
+                lines2.append(Line(line[0], line[1]).set_stroke(XKCD.WHITE, 1, 0.8))
+            else:
+                lines1.append(Line(camera.get_center(), line[0]).set_stroke(XKCD.GREY, 1, 0.42))
+                
         self.play(*[Create(l) for l in lines1])
         self.play(*[Create(l) for l in lines2])
         self.wait(1)

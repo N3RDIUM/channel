@@ -1,5 +1,6 @@
 # Devlog 1 [Ray tracing on a POTATO PC?!]
 
+[INTRO]
 [VISUAL] Obi-wan Kenobi saying "Hello There" [null]
 
 Welcome to my first devlog. Today, we're gonna be starting a new project, called Arhcer.
@@ -68,6 +69,9 @@ Let's get on with the code, shall we?
 
 [VISUAL] do the code scenes from this line
 
+Everything will be optimized and sped up using the taichi python library.
+I DO NOT know how to pronounce that name, so lets just call it ti.
+
 First, let's create a basic Ray class, as it is the most important part of our engine.
 Let's name this file vectors.py, as there will be more useful definitions made here.
 First, let's define some 2d and 3d vector datatypes. Then, we define the ray class.
@@ -81,7 +85,7 @@ The color parameter is temporary, and will be removed in later versions in favou
 For the intersection function, we first need to calculate some parameters for the quadratic equation.
 Then, we calculate the discriminant of the quadratic equation.
 Then, if the ray hits the sphere, return the solution to the equation. Else return -1.
-I've written non-branching code, because I want to squeeze every last drop of optimization I can out of my code.
+I've written non-branching code, because I want to squeeze every last drop of optimization out of my code.
 The code, however, is heavily commented and easy to read, so even newbies can follow along.
 
 Next, we need to create a camera class which handles the camera position, rotation, and provides a function to
@@ -99,3 +103,36 @@ add the dither or randomness to the direction, calculate the rotation matrix,
 apply the rotation to the direction, normalize the direction, and return the ray. Phew!
 
 Now that we have made the 3 major parts of the engine, let's put it all together in scene.py
+The scene class stores a sky color, and the number of rays to shoot per pixel.
+In the render function, we calculate the sky multiplier and the number of spheres in the scene.
+Then, we create a ti.kernel function, which is like the gateway between native python and ti.
+This function iterates over each pixel on the screen,
+performs ray tracing for each pixel, and stores it separately for each ray.
+If it hits the sphere, the color of the ray is that of the sphere.
+Else, the ray gets the color of the sky. That's pretty straightforward.
+Then the colour of all rays sent through the same pixel is averaged.
+Then, we call this function and return the pixels.
+
+Till now, we've been writing code without actually looking at the output.
+Look, I know that's not a good practice, but bear with me. This is the last file.
+
+In main.py, let's cook up a basic sphere scene, in which the field of view of the camera changes with a sine wave.
+First, we import everything we need, and initialize ti.
+Then we specify the resolution of the render.
+Then we go through what is apparently a bunch of nonsense just to create a single sphere.
+After that, we set up our camera.
+Finally, we create the field which stores the final rendered image, and create the preview window.
+
+In the mainloop, we render the scene and tell the user how much time it took.
+Then, we show the rendered image on the window, and show the user how long that took.
+Finally, because we've written so much code that we're dizzy now, we change the camera's FoV with a sine wave.
+
+That's it for the code!
+
+Now let's check the output.
+
+[VISUAL] BSOD
+[VISUAL] Just kidding...
+[VISUAL] Final render
+
+[OUTRO]

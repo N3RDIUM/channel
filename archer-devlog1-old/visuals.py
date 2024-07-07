@@ -57,7 +57,7 @@ class GPU(Scene):
         self.play(
             *[Rotate(
                 fan,
-                angle=-80*PI,
+                angle=-8*PI,
                 about_point=fan.get_center(),
                 rate_func=rate_functions.ease_in_out_cubic,
                 run_time=12

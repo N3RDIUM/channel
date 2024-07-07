@@ -59,7 +59,7 @@ This is kind of against our initial idea of mimicking the way light behaves in r
 
 [VISUAL] Potato go boom [on "potato"]
 
-We're gonna be dipping our toes into the vast sea of raytracing today. We will render a solid sphere on a solid skybox, and perhaps deal with multiple spheres too.
+We're gonna dip our toes into the world of raytracing today. We will render a solid sphere on a solid skybox. Although that sounds quite lame, according to Ray Tracing in One Weekend, we're closer to half-way there than we are from scratch.
 We will do this in a way completely different to rasterization. We will shoot rays out of our camera for every pixel on the screen, and see if they hit the sphere. 
 If they do, the color of that pixel is the color of the sphere. Else, its color is that of the skybox.
 
@@ -95,7 +95,8 @@ The camera has a resolution, position, rotation, field of view, and dither.
 (off-screen far-away voice) What's dither?
 
 Wait for it, we'll get to it in a moment. For now, dithering adds a bit of randomness so that each ray for the
-same pixel does not go through the same path.
+same pixel does not go through the same path. This is completely not made up terminology and is definitely not called
+anti-aliasing.
 The get_ray function takes pixel coordinates and returns the ray for that pixel.
 First, we calculate the aspect ratio and normalized screen coordinates.
 Then, we calculate the screen coordinates, calculate the direction vector,
@@ -134,5 +135,7 @@ Now let's check the output.
 [VISUAL] BSOD
 [VISUAL] Just kidding...
 [VISUAL] Final render
+
+In the next devlog, we'll be looking at multiple objects and the lambertian shading model. Thanks for watching!
 
 [OUTRO]
